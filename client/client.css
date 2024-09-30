@@ -1,0 +1,132 @@
+body {
+    margin: 0;
+    padding-bottom: 3rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+#form {
+    background: rgba(0, 0, 0, 0.15);
+    padding: 0.25rem;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    height: 3rem;
+    box-sizing: border-box;
+    backdrop-filter: blur(10px);
+}
+
+#input {
+    border: none;
+    padding: 0 1rem;
+    flex-grow: 1;
+    border-radius: 2rem;
+    margin: 0.25rem;
+}
+
+#input:focus {
+    outline: none;
+}
+
+#form>button {
+    background: #333;
+    border: none;
+    padding: 0 1rem;
+    margin: 0.25rem;
+    border-radius: 3px;
+    outline: none;
+    color: #fff;
+}
+
+#messages {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+#messages>li {
+    padding: 0.5rem 1rem;
+}
+
+#messages>li:nth-child(odd) {
+    background: #efefef;
+}
+
+#usercount {
+    display: flex;
+    justify-content: center;
+    border: 2px solid black;
+    padding: 0 1rem;
+    flex-grow: 1;
+    margin: 0.25rem;
+    border-radius: 2rem;
+    background-color: beige;
+    font-size: large;
+
+}
+
+#welcomeMessage {
+    display: flex;
+    justify-content: center;
+    border: 2px solid black;
+    padding: 0 1rem;
+    flex-grow: 1;
+    margin: 0.25rem;
+    border-radius: 2rem;
+    background-color: bisque;
+    font-size: large;
+
+}
+
+#messages {
+    list-style: none;
+    padding: 0;
+}
+
+.message-item {
+    display: flex;
+    /* Use flexbox for layout */
+    margin: 10px 0;
+    /* Add margin for spacing */
+}
+
+.my-message {
+    justify-content: flex-end;
+    /* Align current user's message to the right */
+}
+
+.other-message {
+    justify-content: flex-start;
+    /* Align other user's message to the left */
+}
+
+.message-content {
+    padding: 10px;
+    /* Add some padding */
+    border-radius: 5px;
+    /* Optional: round corners */
+    background-color: #eff3ec;
+    /* Optional: light green background for my messages */
+}
+
+.other-message .message-content {
+    background-color: #f1f1f1;
+    /* Optional: light gray background for other messages */
+}
+
+.id-container {
+    display: flex;
+    /* Use flexbox to center the ID */
+    justify-content: center;
+    /* Center the ID */
+    width: 100%;
+    /* Full width for centering */
+}
+
+.socket-id {
+    color: gray;
+    /* Optional: change color for distinction */
+    margin: 0 10px;
+    /* Optional: add margin for spacing */
+}
