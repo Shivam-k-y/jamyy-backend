@@ -39,20 +39,6 @@ body {
     color: #fff;
 }
 
-#messages {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-}
-
-#messages>li {
-    padding: 0.5rem 1rem;
-}
-
-#messages>li:nth-child(odd) {
-    background: #efefef;
-}
-
 #usercount {
     display: flex;
     justify-content: center;
@@ -129,4 +115,22 @@ body {
     /* Optional: change color for distinction */
     margin: 0 10px;
     /* Optional: add margin for spacing */
+}
+
+
+#roomInput:is(:focus){
+    border: 2px solid transparent;
+    transition: all 0.1s ease;
+    background: linear-gradient(#121125,#121125)
+    padding-box,
+                linear-gradient(45deg, blue,red) border-box ;
+    
+}
+#roomInput{
+    all: unset;
+    color: #fff;
+    border:1px solid #999797;
+    border-radius: 5px;
+    padding: 10px, 20px;
+
 }

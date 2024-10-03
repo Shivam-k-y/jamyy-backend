@@ -8,17 +8,39 @@ const form = document.getElementById('form');
 const input = document.getElementById('input');
 const messages = document.getElementById('messages');
 
-// Step 2: Listen for form submission and send the message to the server
+const roomForm = document.getElementById('roomForm');
+const roomInput = document.getElementById('roomInput');
+const joinRoomBtn = document.getElementById('joinRoomBtn')
+let currentRoom = ''; // Store the current room
+
+
+roomForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+});
+
+joinRoomBtn.addEventListener('click', () => {
+    const roomName = roomInput.value.trim();
+    if (roomName) {
+        Socket.emit('joinRoom', roomName); // Emit the room join request
+        currentRoom = roomName; // Set the current room
+
+        roomForm.style.display = 'none';
+    }
+});
+
+
+// Listen for form submission and send a message to the server in the current room
 form.addEventListener('submit', (e) => {
     e.preventDefault();
     if (input.value) {
-        Socket.emit('message', input.value); // Emit the message
+        Socket.emit('message', { room: currentRoom, message: input.value }); // Emit the message to the room
         input.value = ''; // Clear the input field
     }
 });
 
+
 // Step 3: Listen for 'chat message' event from the server and display the message
-Socket.on('message', (msg, socketId) => {
+Socket.on('message', ({ msg, socketId }) => {
     const item = document.createElement('div');
     item.className = 'message-item'; // Add a class for styling
 
@@ -79,6 +101,7 @@ Socket.on('newUserconnect', ({ message, user }) => {
 
 // Listen for the 'disconnect' event when the client is disconnected
 Socket.on('disconnect', () => {
+    Socket.emit('disconnect', { room: currentRoom});
     console.log('Disconnected from the server');
 });
 
