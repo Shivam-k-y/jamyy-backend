@@ -5,12 +5,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="/socket.io/socket.io.js"></script>
+    <link rel="stylesheet" href="client.css">
     <title>Socket.IO Client</title>
 </head>
 
 <body>
     <h1>Socket.IO Client</h1>
-    <p>Open the console to see real-time messages.</p>
+
+    <!-- Modify your HTML to add a room form -->
+    <form id="roomForm">
+        <input id="roomInput" autocomplete="off" placeholder="Enter room name" />
+        <button type="button" id="joinRoomBtn">Join/Create Room</button>
+    </form>
+
+
+    <div id="usercount"></div> <!-- Display user count -->
+    <div id="welcomeMessage"></div>
+    <ul id="messages"></ul>
+    <form id="form" action="">
+        <input id="input" autocomplete="off" placeholder="Chat" /><button>Send</button>
+    </form>
 
 
     <!-- Load your custom client-side script -->
