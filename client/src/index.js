@@ -1,7 +1,5 @@
 import { io } from 'socket.io-client';
-import { config } from 'dotenv';
-
-config(); // Load the environment variables
+import './app.js';
 
 // Establish a connection to the Socket.IO server
 console.log(process.env.API_URL);

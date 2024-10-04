@@ -1,8 +1,10 @@
 {
   "name": "client",
   "version": "1.0.0",
-  "main": "client.js",
+  "main": "src/index.js",
   "scripts": {
+    "build": "webpack",
+    "start": "webpack serve --open",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -10,6 +12,16 @@
   "description": "",
   "dependencies": {
     "dotenv": "^16.4.5",
+    "path": "^0.12.7",
     "socket.io-client": "^4.8.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.7",
+    "@babel/preset-env": "^7.25.7",
+    "babel-loader": "^9.2.1",
+    "dotenv-webpack": "^8.1.0",
+    "webpack": "^5.95.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.1.0"
   }
 }
