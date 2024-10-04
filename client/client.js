@@ -1,7 +1,11 @@
-import { io } from "https://cdn.socket.io/4.7.5/socket.io.esm.min.js";
+import { io } from 'socket.io-client';
+import { config } from 'dotenv';
+
+config(); // Load the environment variables
 
 // Establish a connection to the Socket.IO server
-const Socket = io('http://localhost:3000'); // Connect to the server
+console.log(process.env.API_URL);
+const Socket = io(process.env.API_URL); // Connect to the server
 
 
 const form = document.getElementById('form');
