@@ -75,9 +75,12 @@ io.on('connection', (socket) => {
         console.log('User disconnected:', socket.id);
 
         if (currentRoom) {
-            let room = users_count.find((roomItem) => roomItem.roomID === currentRoom);
+            let room = users_count.find((room) => room.roomID === currentRoom);
             if (room) {
                 room.user--;
+
+                io.to(currentRoom).emit('message', { msg: `${socket.id} has left the room`, socketId: socket.id });
+
 
                 // Emit the updated user count to the room
                 io.to(currentRoom).emit('newUserconnect', { user: room.user });

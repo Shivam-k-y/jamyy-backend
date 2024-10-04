@@ -29,7 +29,7 @@ body {
   outline: none;
 }
 
-#form > button {
+#form>button {
   background: #333;
   border: none;
   padding: 0 1rem;
@@ -39,7 +39,8 @@ body {
   color: #fff;
 }
 
-#usercount, #welcomeMessage {
+#usercount,
+#welcomeMessage {
   display: flex;
   justify-content: center;
   border: 2px solid black;
@@ -58,50 +59,63 @@ body {
   background-color: bisque;
 }
 
+
+.socket-id {
+  color: rgb(110, 158, 68);
+}
+
+
 #messages {
   list-style: none;
   padding: 0;
+  margin: 0;
+  max-height: 400px;
+  overflow-y: auto;
 }
 
 .message-item {
   display: flex;
-  margin: 10px 0;
+  margin: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 40%;
+  word-wrap: break-word;
 }
 
 .my-message {
+  background-color: #79ef11a4;
+  color: #fff;
+  margin-left: auto;
   justify-content: flex-end;
 }
 
 .other-message {
+  background-color: #081001d8;
+  color: #fff;
+  margin-right: auto;
+
   justify-content: flex-start;
 }
 
-.message-content {
-  padding: 10px;
-  border-radius: 5px;
-  background-color: #eff3ec;
-}
-
-.other-message .message-content {
-  background-color: #f1f1f1;
-}
-
 .id-container {
-  display: flex;
-  justify-content: center;
-  width: 100%;
+  font-size: 0.75rem;
+  color: #888;
 }
 
-.socket-id {
-  color: gray;
-  margin: 0 10px;
+.message-content {
+  font-size: 1rem;
+  margin-top: 5px;
+}
+
+#messages div {
+  clear: both;
 }
 
 #roomInput:focus {
   border: 2px solid transparent;
   transition: all 0.1s ease;
-  background: linear-gradient(#121125,#121125) padding-box,
-              linear-gradient(45deg, blue,red) border-box;
+  background: linear-gradient(#121125, #121125) padding-box,
+    linear-gradient(45deg, blue, red) border-box;
 }
 
 #roomInput {
