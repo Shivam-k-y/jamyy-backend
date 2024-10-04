@@ -25,7 +25,8 @@ module.exports = {
   devServer: {
     static: path.join(__dirname, 'dist'), // Serve files from the 'dist' directory
     compress: true, // Enable gzip compression for everything served
-    port: 9000, // The port you want to run the server on
+    port: 3000, // The port you want to run the server on
+    host: '0.0.0.0', // Can be accessed externally
     open: true, // Open the browser after server had been started
     hot: true, // Enable Hot Module Replacement
   },
