@@ -87,12 +87,13 @@ io.on('connection', (socket) => {
 });
 
 // print the user count
-// app.get('/users', (req, res) => {
-//     res.json(users_count);
-// });
+app.get('/users', (req, res) => {
+    res.json(users_count);
+});
+
 
 // Start the server
-httpServer.listen(3000, () => {
+httpServer.listen(3000, '0.0.0.0', () => {
     console.log('Server listening on port 3000');
 });
 
