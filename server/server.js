@@ -75,7 +75,6 @@ io.on('connection', (socket) => {
         console.log('User disconnected:', socket.id);
 
         if (currentRoom) {
-            let room = users_count.find((roomItem) => roomItem.roomID === currentRoom);
             if (room) {
                 room.user--;
 

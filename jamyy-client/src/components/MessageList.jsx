@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 function MessageList({ messages, currentUserId }) {
   const messagesEndRef = useRef(null);
@@ -14,7 +14,7 @@ function MessageList({ messages, currentUserId }) {
       {messages.map((msg, index) => (
         <li
           key={index}
-          className={`message-item ${msg.socketId === currentUserId ? 'my-message' : 'other-message'}`}
+          className={`message-item ${msg.socketId !== currentUserId ? 'my-message' : 'other-message'}`}
         >
           <div className="id-container">
             <span className="socket-id">(ID: {msg.socketId})</span>
