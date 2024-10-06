@@ -29,7 +29,15 @@ function App() {
   }, []);
 
   const handleJoinRoom = (roomName) => {
-    Socket.emit('joinRoom', roomName);
+    if (roomName === 'adavya') {
+      Socket.emit('joinRoom', roomName);
+    }
+    else {
+      alert('Invalid Room Name');
+      document.getElementById('roomInput').value = '';
+      return;
+    }
+
     setCurrentRoom(roomName);
     setShowRoomForm(false);
   };
