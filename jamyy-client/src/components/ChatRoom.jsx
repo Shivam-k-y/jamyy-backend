@@ -27,7 +27,7 @@ function ChatRoom({ Socket, currentRoom }) {
       e.preventDefault();
     }
   };
-
+//  adding the comment
   return (
     <div className="chat-room">
       <MessageList messages={messages} currentUserId={Socket.id} />
