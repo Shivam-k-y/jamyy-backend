@@ -22,6 +22,11 @@ function ChatRoom({ Socket, currentRoom }) {
       setInputMessage('');
     }
   };
+  const handleKeyDown = (e) => {
+    if ((e.ctrlKey && e.key === 'c') || (e.ctrlKey && e.key === 'v')) {
+      e.preventDefault();
+    }
+  };
 
   return (
     <div className="chat-room">
@@ -31,6 +36,7 @@ function ChatRoom({ Socket, currentRoom }) {
           id="input"
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
+          onKeyDown={handleKeyDown}
           autoComplete="off"
           placeholder="Chat"
         />
