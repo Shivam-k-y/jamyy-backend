@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import ChatRoom from './components/ChatRoom';
-import axios from 'axios';
+// import axios from 'axios';
 import './App.css';
 
 const Socket = io(import.meta.env.VITE_API_URL);
@@ -15,19 +15,17 @@ function App() {
 
   // I don't know how to use it from client side to backend side
 
-  const handleGetToken = async () => {
-    try {
-      const response = await axios.get('http://localhost:3000/generate-token');
-      setToken(response.data.token);
-      console.log('JWT Token:', response.data.token);
-    } catch (error) {
-      console.error('Error fetching token:', error);
-    }
-  };
+  // const handleGetToken = async () => {
+  //   try {
+  //     const response = await axios.get('http://localhost:3000/generate-token');
+  //     setToken(response.data.token);
+  //     console.log('JWT Token:', response.data.token);
+  //   } catch (error) {
+  //     console.error('Error fetching token:', error);
+  //   }
+  // };
 
-  // return (
-    
-  // );
+
 
   useEffect(() => {
     Socket.on('newUserconnect', ({ message, user }) => {
