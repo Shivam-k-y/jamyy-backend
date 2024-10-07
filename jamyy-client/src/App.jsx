@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import ChatRoom from './components/ChatRoom';
+import axios from 'axios';
 import './App.css';
 
 const Socket = io(import.meta.env.VITE_API_URL);
@@ -10,6 +11,23 @@ function App() {
   const [showRoomForm, setShowRoomForm] = useState(true);
   const [userCount, setUserCount] = useState(0);
   const [welcomeMessage, setWelcomeMessage] = useState('');
+  const [token, setToken] = useState('');
+
+  // I don't know how to use it from client side to backend side
+
+  const handleGetToken = async () => {
+    try {
+      const response = await axios.get('http://localhost:3000/generate-token');
+      setToken(response.data.token);
+      console.log('JWT Token:', response.data.token);
+    } catch (error) {
+      console.error('Error fetching token:', error);
+    }
+  };
+
+  // return (
+    
+  // );
 
   useEffect(() => {
     Socket.on('newUserconnect', ({ message, user }) => {
@@ -33,6 +51,13 @@ function App() {
     setCurrentRoom(roomName);
     setShowRoomForm(false);
   };
+
+  // Decide what to display when token generation occur.
+  // <div className="App">
+  //     <h1>Socket.IO Chat</h1>
+  //     <button onClick={handleGetToken}>Get JWT Token</button>
+  //     {token && <p>Your token: {token}</p>}
+  //   </div>
 
   return (
     <div className="App">
