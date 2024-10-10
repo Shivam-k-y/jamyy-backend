@@ -101,7 +101,7 @@ function ChatRoom({ Socket, currentRoom }) {
                   <AvatarFallback>{msg.socketId.slice(0, 2).toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div className={`mx-2 max-w-md ${msg.socketId === Socket.id ? 'text-right' : 'text-left'}`}>
-                  <p className="text-xs text-muted-foreground mb-1">ID: {msg.socketId.slice(0, 6)}</p>
+                  <p className="text-xs text-muted-foreground mb-1">ID: {msg.socketId}</p>
                   <div className={`max-w-56 sm:max-w-sm md:max-w-md rounded-lg p-3 inline-block break-words ${msg.socketId === Socket.id ? 'bg-primary text-primary-foreground' : 'bg-secondary'}`}>
                     {msg.msg}
                   </div>
