@@ -13,6 +13,7 @@ function ChatRoom({ Socket, currentRoom }) {
   const scrollAreaRef = useRef(null)
   const messagesEndRef = useRef(null)
   const isAtBottomRef = useRef(true)
+  const message_limit = 500;
 
   useEffect(() => {
     Socket.on('message', (data) => {
@@ -53,8 +54,8 @@ function ChatRoom({ Socket, currentRoom }) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (inputMessage.length >= 100) {
-      alert('Message is too long. Please keep it under 100 characters.')
+    if (inputMessage.length >= message_limit) {
+      alert(`Message is too long. Please keep it under ${message_limit} characters.`)
       setInputMessage('')
       return
     }

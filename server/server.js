@@ -17,13 +17,12 @@ const io = new Server(httpServer, {
     }
 });
 
-
 let data=[]
 let deleted_rooms = []
 
 app.get('/generate-token', (req, res) => {
     const token = generate_token(user_id, res);
-    });
+});
 
 // get data
 app.get('/data', (req, res) => {
@@ -132,7 +131,7 @@ io.on('connection', (socket) => {
         io.to(room).emit('message', { msg: message, socketId: socket.id });
 
         // Push the data in data
-        data.push({room: room, message: message, socketId: socket.id})
+        data.push({ room: room, message: message, socketId: socket.id })
     });
 
     // Handle disconnection
