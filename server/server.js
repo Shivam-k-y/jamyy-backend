@@ -82,7 +82,12 @@ app.get('/generate-token', (req, res) => {
     if (!req.cookies.token) {
         const userId = Math.random().toString(36).slice(2, 11);
         const token = generateToken(userId);
-        res.cookie('token', token, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 });
+        res.cookie('token', token, { 
+            httpOnly: true, 
+            maxAge: 24 * 60 * 60 * 1000,
+            secure: process.env.NODE_ENV === 'production', // Send the cookie only over HTTPS when in production
+            sameSite: 'None', // Required for cross-origin requests
+        });
         res.json({ message: "Token generated and set in cookie", token });
     } else {
         res.json({ message: "Token already exists" });
