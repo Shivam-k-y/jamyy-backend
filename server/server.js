@@ -67,6 +67,9 @@ app.post('/revive-room/:roomName', (req, res) => {
 // Block user id
 app.post('/block-user/:userId', (req, res) => {
     blocked_users.push(req.params.userId);
+    // Disconnect the user
+    io.sockets.sockets[req.params.userId].disconnect();
+
     res.json({ message: `User ${req.params.userId} blocked.` });
 });
 
@@ -101,7 +104,7 @@ io.on('connection', (socket) => {
         // Check if the room is deleted
         let roomDeleted = deleted_rooms.find((room) => room === roomName);
 
-        if (roomDeleted || blocked_users.find((user) => user === socket.id)) {
+        if (roomDeleted) {
             // Notify the user
             socket.emit('message', { msg: `Room ${roomName} has been closed, you have been disconnected.` });
             return;
