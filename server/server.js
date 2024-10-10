@@ -19,6 +19,7 @@ const io = new Server(httpServer, {
 
 
 let data=[]
+let deleted_rooms = []
 
 app.get('/generate-token', (req, res) => {
     const token = generate_token(user_id, res);
@@ -27,6 +28,34 @@ app.get('/generate-token', (req, res) => {
 // get data
 app.get('/data', (req, res) => {
     res.json(data);
+});
+
+
+// Route to delete a room and kick out all users
+app.delete('/destroy-room/:roomName', (req, res) => {
+    const roomName = req.params.roomName;
+
+    // Find the room in the users_count array
+    const roomIndex = users_count.findIndex((room) => room.roomID === roomName);
+
+    if (roomIndex === -1) {
+        return res.status(404).json({ message: "Room not found" });
+    }
+
+    // Notify users in the room that the room is closing
+    io.to(roomName).emit('message', { msg: `Room ${roomName} has been closed, you have been disconnected.` });
+
+    // Remove all users from the room
+    io.socketsLeave(roomName);
+
+    // Remove the room from the users_count array
+    users_count.splice(roomIndex, 1);
+
+    res.json({ message: `Room ${roomName} deleted and all users kicked out.` });
+
+    // Push the deleted room in deleted_rooms
+    deleted_rooms.push(roomName)
+
 });
 
 
@@ -56,34 +85,45 @@ io.on('connection', (socket) => {
 
     // Handle joining a room
     socket.on('joinRoom', (roomName) => {
-        // Check if the room exists
-        let roomExists = users_count.find((room) => room.roomID === roomName);
 
-        if (!roomExists) {
-            // Create a new room if it doesn't exist
-            roomExists = {
-                roomID: roomName,
-                user: 0
-            };
-            users_count.push(roomExists);
+        // Check if the room is deleted
+        let roomDeleted = deleted_rooms.find((room) => room === roomName);
+
+        if (roomDeleted) {
+            // Notify the user
+            socket.emit('message', { msg: `Room ${roomName} has been closed, you have been disconnected.` });
+            return;
         }
+        else{
+            // Check if the room exists
+            let roomExists = users_count.find((room) => room.roomID === roomName);
 
-        roomExists.user++;
-        currentRoom = roomName; // Store the room for later use
-        socket.join(roomName); // Join the specified room
-        console.log(`${socket.id} joined room: ${roomName}`);
+            if (!roomExists) {
+                // Create a new room if it doesn't exist
+                roomExists = {
+                    roomID: roomName,
+                    user: 0
+                };
+                users_count.push(roomExists);
+            }
 
-        // Notify the user
-        socket.emit('message', { msg: `Welcome to room: ${roomName}`, socketId: socket.id });
+            roomExists.user++;
+            currentRoom = roomName; // Store the room for later use
+            socket.join(roomName); // Join the specified room
+            console.log(`${socket.id} joined room: ${roomName}`);
 
-        // Notify others in the room
-        socket.to(roomName).emit('message', { msg: `${socket.id} has joined the room`, socketId: socket.id });
+            // Notify the user
+            socket.emit('message', { msg: `Welcome to room: ${roomName}`, socketId: socket.id });
 
-        // Emit a welcome message to the newly connected user with the user count
-        socket.emit('newUserconnect', { message: 'Hi! Welcome To Anonymous Chat Room', user: roomExists.user });
+            // Notify others in the room
+            socket.to(roomName).emit('message', { msg: `${socket.id} has joined the room`, socketId: socket.id });
 
-        // Emit the current user count only to the users in this room
-        io.to(roomName).emit('newUserconnect', { user: roomExists.user });
+            // Emit a welcome message to the newly connected user with the user count
+            socket.emit('newUserconnect', { message: 'Hi! Welcome To Anonymous Chat Room', user: roomExists.user });
+
+            // Emit the current user count only to the users in this room
+            io.to(roomName).emit('newUserconnect', { user: roomExists.user });
+        }
     });
 
     // Listen for messages from the client

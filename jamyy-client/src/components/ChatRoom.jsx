@@ -79,11 +79,11 @@ function ChatRoom({ Socket, currentRoom }) {
   }
 
   return (
-    <Card className="w-full h-5/6 mx-auto relative bg-transparent">
+    <Card className="w-full h-5/6 mx-auto relative">
       <CardHeader>
         <CardTitle>Chat Room: {currentRoom}</CardTitle>
       </CardHeader>
-      <CardContent className="p-0 bg-transparent">
+      <CardContent className="p-0">
         <ScrollArea className="h-[300px] w-full bg-transparent" ref={scrollAreaRef}>
           <div className="p-4">
           {messages.map((msg, index) => (
