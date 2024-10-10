@@ -3,6 +3,11 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import path from "path";
 import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+import generate_token from './jsonwebtoken.js';
+import cookieParser from 'cookie-parser';
+
+dotenv.config();
 
 const app = express();
 const httpServer = createServer(app);
@@ -12,11 +17,20 @@ const io = new Server(httpServer, {
     }
 });
 
+app.get('/generate-token', (req, res) => {
+    const token = generate_token(user_id, res);
+    });
+
+
 // Set __dirname to the current directory since we are using ESM (ES6 modules)
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, './public')));
+
+app.use(express.json());
+// To handling the cookies
+app.use(cookieParser());
 
 let users_count = [
     {
@@ -58,7 +72,7 @@ io.on('connection', (socket) => {
         socket.to(roomName).emit('message', { msg: `${socket.id} has joined the room`, socketId: socket.id });
 
         // Emit a welcome message to the newly connected user with the user count
-        socket.emit('newUserconnect', { message: 'Hi! Welcome Dear', user: roomExists.user });
+        socket.emit('newUserconnect', { message: 'Hi! Welcome To Anonymous Chat Room', user: roomExists.user });
 
         // Emit the current user count only to the users in this room
         io.to(roomName).emit('newUserconnect', { user: roomExists.user });
