@@ -33,14 +33,35 @@ function ChatRoom({ Socket, currentRoom }) {
     }
   };
 
+  const handleInputChange = (e) => {
+    if (e.key === '*' || e.key === '.' || e.key === '\\') {
+      e.preventDefault();  // Prevent the key from being typed
+    }
+  };
+  useEffect(() => {
+    const inputElement = document.getElementById('input');
+    if (inputElement) {
+      inputElement.addEventListener('keypress', handleInputChange);
+    }
+
+    return () => {
+      if (inputElement) {
+        inputElement.removeEventListener('keypress', handleInputChange);
+      }
+    };
+  }, []);
+  
+
   return (
     <div className="chat-room">
       <MessageList messages={messages} currentUserId={Socket.id} />
       <form id="form" onSubmit={handleSubmit}>
         <input
+         
           id="input"
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
+          onKeyClick={handleInputChange}
           onKeyDown={handleKeyDown}
           autoComplete="off"
           placeholder="Chat"
