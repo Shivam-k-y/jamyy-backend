@@ -148,4 +148,4 @@ function ChatRoom({ Socket, currentRoom }) {
   )
 }
 
-export default ChatRoom;
+export default ChatRoom
