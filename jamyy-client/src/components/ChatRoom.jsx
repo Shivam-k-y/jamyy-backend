@@ -79,6 +79,10 @@ function ChatRoom({ Socket, currentRoom }) {
     }
   }
 
+  const handlePrevent = (e) => {
+    e.preventDefault()
+  }
+
   return (
     <Card className="w-full h-5/6 mx-auto relative">
       <CardHeader>
@@ -129,7 +133,10 @@ function ChatRoom({ Socket, currentRoom }) {
             onKeyDown={handleKeyDown}
             placeholder="Type your message..."
             className="flex-grow"
-            onpaste="return false;"
+            // onCopy={handlePrevent}
+            // onPaste={handlePrevent}
+            // onDrag={handlePrevent}
+            // onDrop={handlePrevent}
             required
           />
           <Button type="submit" size="icon">
