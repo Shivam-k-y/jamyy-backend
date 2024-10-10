@@ -59,7 +59,7 @@ app.get('/generate-token', (req, res) => {
 // print the user count
 app.get('/users', (req, res) => {
     // Return the users_count array with userids and their ips
-    res.json([]);
+    res.json(users_count);
 });
 
 // get data
