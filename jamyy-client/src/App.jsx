@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import ChatRoom from './components/ChatRoom';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription } from "@/components/ui/alert-dialog"
-import { UserIcon, Users, AlertTriangle } from "lucide-react"
-
-const Socket = io(import.meta.env.VITE_API_URL);
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription } from "@/components/ui/alert-dialog";
+import { UserIcon, Users, AlertTriangle } from "lucide-react";
+import axios from 'axios';
 
 function App() {
   const [currentRoom, setCurrentRoom] = useState('');
@@ -21,34 +20,55 @@ function App() {
   const [banMessage, setBanMessage] = useState('');
   const [showBanAlert, setShowBanAlert] = useState(false);
 
+  const [Socket, setSocket] = useState(null);
+
   useEffect(() => {
-    Socket.on('newUserconnect', ({ message, user }) => {
-      if (message) {
-        setWelcomeMessage(message);
-      }
-      if (user !== undefined) {
-        setTimeout(() => {
-          setUserCount(user);
-        }, 2000);
-      }
-    });
+    const initializeSocket = async () => {
+      try {
+        // Fetch token from the server or cookies
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/generate-token`, { withCredentials: true });
+        const token = response.data.token;
 
-    Socket.on('banned', ({ message }) => {
-      setIsBanned(true);
-      setBanMessage(message);
-      setShowRoomForm(true);
-      setCurrentRoom('');
-      setShowBanAlert(true);
-    });
+        // Establish the socket connection with the token in the handshake auth
+        const newSocket = io(import.meta.env.VITE_API_URL, {
+          withCredentials: true,
+        });
 
-    return () => {
-      Socket.off('newUserconnect');
-      Socket.off('banned');
+        setSocket(newSocket);
+
+        newSocket.on('newUserconnect', ({ message, user }) => {
+          if (message) {
+            setWelcomeMessage(message);
+          }
+          if (user !== undefined) {
+            setTimeout(() => {
+              setUserCount(user);
+            }, 2000);
+          }
+        });
+
+        newSocket.on('banned', ({ message }) => {
+          setIsBanned(true);
+          setBanMessage(message);
+          setShowRoomForm(true);
+          setCurrentRoom('');
+          setShowBanAlert(true);
+        });
+
+        return () => {
+          newSocket.off('newUserconnect');
+          newSocket.off('banned');
+        };
+      } catch (error) {
+        console.error('Error initializing socket:', error);
+      }
     };
+
+    initializeSocket();
   }, []);
 
   const handleJoinRoom = () => {
-    if (roomInput.trim() === 'adavya') {
+    if (roomInput.trim() === 'adavya' && Socket) {
       Socket.emit('joinRoom', roomInput.trim());
       setCurrentRoom(roomInput.trim());
       setShowRoomForm(false);
