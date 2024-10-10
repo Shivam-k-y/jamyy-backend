@@ -57,6 +57,12 @@ app.delete('/destroy-room/:roomName', (req, res) => {
 
 });
 
+// Revive room
+app.post('/revive-room/:roomName', (req, res) => {
+    deleted_rooms = deleted_rooms.filter((room) => room !== req.params.roomName);
+    res.json({ message: `Room ${req.params.roomName} revived.` });
+});
+
 
 // Set __dirname to the current directory since we are using ESM (ES6 modules)
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
