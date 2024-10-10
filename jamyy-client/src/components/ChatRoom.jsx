@@ -74,7 +74,7 @@ function ChatRoom({ Socket, currentRoom }) {
   }
 
   return (
-    <Card className="w-full h-full mx-auto relative bg-transparent">
+    <Card className="w-full h-5/6 mx-auto relative bg-transparent">
       <CardHeader>
         <CardTitle>Chat Room: {currentRoom}</CardTitle>
       </CardHeader>
@@ -122,6 +122,8 @@ function ChatRoom({ Socket, currentRoom }) {
             onKeyDown={handleKeyDown}
             placeholder="Type your message..."
             className="flex-grow"
+            onpaste="return false;"
+            required
           />
           <Button type="submit" size="icon">
             <Send className="h-4 w-4" />
