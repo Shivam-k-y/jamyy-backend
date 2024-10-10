@@ -19,6 +19,7 @@ const io = new Server(httpServer, {
 
 let data=[]
 let deleted_rooms = []
+let blocked_users = []
 
 app.get('/generate-token', (req, res) => {
     const token = generate_token(user_id, res);
@@ -63,6 +64,12 @@ app.post('/revive-room/:roomName', (req, res) => {
     res.json({ message: `Room ${req.params.roomName} revived.` });
 });
 
+// Block user id
+app.post('/block-user/:userId', (req, res) => {
+    blocked_users.push(req.params.userId);
+    res.json({ message: `User ${req.params.userId} blocked.` });
+});
+
 
 // Set __dirname to the current directory since we are using ESM (ES6 modules)
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -94,7 +101,7 @@ io.on('connection', (socket) => {
         // Check if the room is deleted
         let roomDeleted = deleted_rooms.find((room) => room === roomName);
 
-        if (roomDeleted) {
+        if (roomDeleted || blocked_users.find((user) => user === socket.id)) {
             // Notify the user
             socket.emit('message', { msg: `Room ${roomName} has been closed, you have been disconnected.` });
             return;
