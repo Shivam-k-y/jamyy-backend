@@ -11,7 +11,8 @@ function ChatRoom({ Socket, currentRoom }) {
   const [inputMessage, setInputMessage] = useState('')
   const [showScrollButton, setShowScrollButton] = useState(false)
   const scrollAreaRef = useRef(null)
-  const scrollAreaViewportRef = useRef(null)
+  const messagesEndRef = useRef(null)
+  const isAtBottomRef = useRef(true)
 
   useEffect(() => {
     Socket.on('message', (data) => {
@@ -24,27 +25,30 @@ function ChatRoom({ Socket, currentRoom }) {
   }, [Socket])
 
   useEffect(() => {
-    const scrollAreaViewport = scrollAreaViewportRef.current
-    if (scrollAreaViewport) {
-      const handleScroll = () => {
-        const { scrollTop, scrollHeight, clientHeight } = scrollAreaViewport
-        const isScrolledUp = scrollHeight - scrollTop > clientHeight + 100
-        setShowScrollButton(isScrolledUp)
+    const handleScroll = () => {
+      if (scrollAreaRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = scrollAreaRef.current
+        const isScrolledToBottom = scrollHeight - scrollTop <= clientHeight + 1
+        isAtBottomRef.current = isScrolledToBottom
+        setShowScrollButton(!isScrolledToBottom)
       }
+    }
 
-      scrollAreaViewport.addEventListener('scroll', handleScroll)
-      return () => scrollAreaViewport.removeEventListener('scroll', handleScroll)
+    const scrollArea = scrollAreaRef.current
+    if (scrollArea) {
+      scrollArea.addEventListener('scroll', handleScroll)
+      return () => scrollArea.removeEventListener('scroll', handleScroll)
     }
   }, [])
 
   useEffect(() => {
-    scrollToBottom()
+    if (isAtBottomRef.current) {
+      scrollToBottom()
+    }
   }, [messages])
 
   const scrollToBottom = () => {
-    if (scrollAreaViewportRef.current) {
-      scrollAreaViewportRef.current.scrollTop = scrollAreaViewportRef.current.scrollHeight
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
   const handleSubmit = (e) => {
@@ -57,6 +61,7 @@ function ChatRoom({ Socket, currentRoom }) {
     if (inputMessage) {
       Socket.emit('message', { room: currentRoom, message: inputMessage })
       setInputMessage('')
+      scrollToBottom()
     }
   }
 
@@ -79,8 +84,8 @@ function ChatRoom({ Socket, currentRoom }) {
         <CardTitle>Chat Room: {currentRoom}</CardTitle>
       </CardHeader>
       <CardContent className="p-0 bg-transparent">
-        <ScrollArea className="h-[65vh] w-full bg-transparent" ref={scrollAreaRef}>
-          <div className="p-4" ref={scrollAreaViewportRef}>
+        <ScrollArea className="h-[300px] w-full bg-transparent" ref={scrollAreaRef}>
+          <div className="p-4">
             {messages.map((msg, index) => (
               <div
                 key={index}
@@ -99,6 +104,7 @@ function ChatRoom({ Socket, currentRoom }) {
                 </div>
               </div>
             ))}
+            <div ref={messagesEndRef} />
           </div>
         </ScrollArea>
         {showScrollButton && (
@@ -113,7 +119,7 @@ function ChatRoom({ Socket, currentRoom }) {
           </Button>
         )}
       </CardContent>
-      <CardFooter>
+      <CardFooter className="mt-5">
         <form onSubmit={handleSubmit} className="flex w-full items-center space-x-2 bg-white">
           <Input
             id="input"

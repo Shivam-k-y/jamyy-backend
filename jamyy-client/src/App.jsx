@@ -87,7 +87,7 @@ function App() {
           )}
         </CardContent>
         <CardFooter className="text-center text-sm text-gray-500">
-          &copy; 2024 Socket.IO Chat. All rights reserved.
+          &copy; 2024 Annonymous Chat-IIITK. All rights reserved.
         </CardFooter>
       </Card>
     </div>
