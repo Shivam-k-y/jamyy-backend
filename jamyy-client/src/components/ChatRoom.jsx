@@ -17,6 +17,11 @@ function ChatRoom({ Socket, currentRoom }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (inputMessage.length >= 100) {
+      alert('Message is too long. Please keep it under 100 characters.');
+      setInputMessage('');
+      return;
+    }
     if (inputMessage) {
       Socket.emit('message', { room: currentRoom, message: inputMessage });
       setInputMessage('');
