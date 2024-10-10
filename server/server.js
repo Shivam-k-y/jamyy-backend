@@ -17,9 +17,17 @@ const io = new Server(httpServer, {
     }
 });
 
+
+let data=[]
+
 app.get('/generate-token', (req, res) => {
     const token = generate_token(user_id, res);
     });
+
+// get data
+app.get('/data', (req, res) => {
+    res.json(data);
+});
 
 
 // Set __dirname to the current directory since we are using ESM (ES6 modules)
@@ -82,6 +90,9 @@ io.on('connection', (socket) => {
     socket.on('message', ({ room, message }) => {
         // Emit the message to the room
         io.to(room).emit('message', { msg: message, socketId: socket.id });
+
+        // Push the data in data
+        data.push({room: room, message: message, socketId: socket.id})
     });
 
     // Handle disconnection
