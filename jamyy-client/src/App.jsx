@@ -47,7 +47,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-transparent flex items-center justify-center p-4">
-      <Card className="w-full max-w-7xl bg-transparent">
+      <Card className="w-full max-w-7xl bg-white bg-opacity-10 backdrop-blur-lg shadow-lg border border-white border-opacity-20">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">Annonymous Chat of IIITK</CardTitle>
           <CardDescription className="text-center">Connect and chat in real-time</CardDescription>
@@ -60,8 +60,14 @@ function App() {
                 <Input
                   id="roomInput"
                   placeholder="Enter room name"
+                  className="bg-white"
                   value={roomInput}
                   onChange={(e) => setRoomInput(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleJoinRoom();
+                    }
+                  }}
                 />
               </div>
               <Button className="w-full" onClick={handleJoinRoom}>
