@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import ChatRoom from './components/ChatRoom';
-// import axios from 'axios';
-import './App.css';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "./components/ui/card"
+import { Input } from "./components/ui/input"
+import { Button } from "./components/ui/button"
+import { Label } from "./components/ui/label"
+import { Alert, AlertDescription, AlertTitle } from "./components/ui/alert"
+import { UserIcon, Users } from "lucide-react"
 
 const Socket = io(import.meta.env.VITE_API_URL);
 
@@ -11,21 +15,7 @@ function App() {
   const [showRoomForm, setShowRoomForm] = useState(true);
   const [userCount, setUserCount] = useState(0);
   const [welcomeMessage, setWelcomeMessage] = useState('');
-  const [token, setToken] = useState('');
-
-  // I don't know how to use it from client side to backend side
-
-  // const handleGetToken = async () => {
-  //   try {
-  //     const response = await axios.get('http://localhost:3000/generate-token');
-  //     setToken(response.data.token);
-  //     console.log('JWT Token:', response.data.token);
-  //   } catch (error) {
-  //     console.error('Error fetching token:', error);
-  //   }
-  // };
-
-
+  const [roomInput, setRoomInput] = useState('');
 
   useEffect(() => {
     Socket.on('newUserconnect', ({ message, user }) => {
@@ -44,47 +34,62 @@ function App() {
     };
   }, []);
 
-  const handleJoinRoom = (roomName) => {
-    if (roomName === 'adavya') {
-      Socket.emit('joinRoom', roomName);
-    }
-    else {
+  const handleJoinRoom = () => {
+    if (roomInput.trim() === 'adavya') {
+      Socket.emit('joinRoom', roomInput.trim());
+      setCurrentRoom(roomInput.trim());
+      setShowRoomForm(false);
+    } else {
       alert('Invalid Room Name');
-      document.getElementById('roomInput').value = '';
-      return;
+      setRoomInput('');
     }
-
-    setCurrentRoom(roomName);
-    setShowRoomForm(false);
   };
-  
-  // Decide what to display when token generation occur.
-  // <div className="App">
-  //     <h1>Socket.IO Chat</h1>
-  //     <button onClick={handleGetToken}>Get JWT Token</button>
-  //     {token && <p>Your token: {token}</p>}
-  //   </div>
 
   return (
-    <div className="App">
-      <h1>Socket.IO Chat</h1>
-      {showRoomForm ? (
-        <div className="room-form">
-          <input
-            id="roomInput"
-            placeholder="Enter room name"
-          />
-          <button onClick={() => handleJoinRoom(document.getElementById('roomInput').value.trim())}>
-            Join/Create Room
-          </button>
-        </div>
-      ) : (
-        <>
-          <div id="usercount">Current Users: {userCount}</div>
-          <div id="welcomeMessage">{welcomeMessage}</div>
-          <ChatRoom Socket={Socket} currentRoom={currentRoom} />
-        </>
-      )}
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+      <Card className="w-full max-w-7xl">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-center">Annonymous Chat of IIITK</CardTitle>
+          <CardDescription className="text-center">Connect and chat in real-time</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {showRoomForm ? (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="roomInput">Room Name for today is <span className='font-bold underline'>{`${import.meta.env.VITE_ROOM_NAME}`}</span></Label>
+                <Input
+                  id="roomInput"
+                  placeholder="Enter room name"
+                  value={roomInput}
+                  onChange={(e) => setRoomInput(e.target.value)}
+                />
+              </div>
+              <Button className="w-full" onClick={handleJoinRoom}>
+                Join/Create Room
+              </Button>
+            </div>
+          ) : (
+            <>
+              <Alert className="mb-4">
+                <UserIcon className="h-4 w-4" />
+                <AlertTitle>Welcome!</AlertTitle>
+                <AlertDescription>{welcomeMessage}</AlertDescription>
+              </Alert>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-2">
+                  <Users className="h-5 w-5 text-blue-500" />
+                  <span className="font-medium">Current Users: {userCount}</span>
+                </div>
+                <span className="text-sm text-gray-500">Room: {currentRoom}</span>
+              </div>
+              <ChatRoom Socket={Socket} currentRoom={currentRoom} />
+            </>
+          )}
+        </CardContent>
+        <CardFooter className="text-center text-sm text-gray-500">
+          &copy; 2024 Annonymous Chat-IIITK. All rights reserved.
+        </CardFooter>
+      </Card>
     </div>
   );
 }
