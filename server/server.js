@@ -17,19 +17,55 @@ const io = new Server(httpServer, {
     }
 });
 
-let data=[]
-let deleted_rooms = []
-let blocked_users = []
+// Add body-parser middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+let data = [];
+let deleted_rooms = [];
+let blocked_users = [];
+let banned_users = new Map(); // Map to store banned users and their ban expiration time
+let users_count = [
+    {
+        roomID: "gh",
+        user: 2,
+        users: [
+            { userId: "123", ip: "192.168.0.1" },
+        ]
+    },
+];
+
+// Middleware to check if a user is banned
+const checkBan = (req, res, next) => {
+    const ip = req.ip;
+    if (banned_users.has(ip)) {
+        const banExpiration = banned_users.get(ip);
+        if (Date.now() < banExpiration) {
+            return res.status(403).json({ message: "You are temporarily banned from the chat." });
+        } else {
+            banned_users.delete(ip);
+        }
+    }
+    next();
+};
+
+app.use(checkBan);
+
 
 app.get('/generate-token', (req, res) => {
     const token = generate_token(user_id, res);
+});
+
+// print the user count
+app.get('/users', (req, res) => {
+    // Return the users_count array with userids and their ips
+    res.json([]);
 });
 
 // get data
 app.get('/data', (req, res) => {
     res.json(data);
 });
-
 
 // Route to delete a room and kick out all users
 app.delete('/destroy-room/:roomName', (req, res) => {
@@ -54,8 +90,7 @@ app.delete('/destroy-room/:roomName', (req, res) => {
     res.json({ message: `Room ${roomName} deleted and all users kicked out.` });
 
     // Push the deleted room in deleted_rooms
-    deleted_rooms.push(roomName)
-
+    deleted_rooms.push(roomName);
 });
 
 // Revive room
@@ -64,15 +99,47 @@ app.post('/revive-room/:roomName', (req, res) => {
     res.json({ message: `Room ${req.params.roomName} revived.` });
 });
 
-// Block user id
+// Block user by socket ID
 app.post('/block-user/:userId', (req, res) => {
-    blocked_users.push(req.params.userId);
-    // Disconnect the user
-    io.sockets.sockets[req.params.userId].disconnect();
+    const userId = req.params.userId;
 
-    res.json({ message: `User ${req.params.userId} blocked.` });
+    // Add user to blocked users list
+    blocked_users.push(userId);
+
+    // Disconnect the user by socket ID
+    const socket = io.sockets.sockets.get(userId);
+    if (socket) {
+        socket.disconnect(true); // Force disconnect the user
+        console.log(`User ${userId} has been blocked and disconnected.`);
+    }
+
+    res.json({ message: `User ${userId} blocked and disconnected.` });
 });
 
+// New route to ban a user
+app.post('/ban-user', (req, res) => {
+    try {
+        const { ip, duration } = req.body;
+        if (!ip || !duration) {
+            return res.status(400).json({ message: "IP and duration are required" });
+        }
+        const banExpiration = Date.now() + duration * 60 * 1000;
+        banned_users.set(ip, banExpiration);
+
+
+        // Disconnect the user by IP address
+        const userId = users_count.find((room) => room.users.find((user) => user.ip === ip)).users[0].userId;
+        const socket = io.sockets.sockets.get(userId);
+        if (socket) {
+            socket.disconnect(true); // Force disconnect the user
+            console.log(`User ${userId} has been blocked and disconnected.`);
+        }
+        res.json({ message: `User with IP ${ip} has been banned for ${duration} minutes.` });
+    } catch (error) {
+        console.error('Error in ban-user route:', error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
 
 // Set __dirname to the current directory since we are using ESM (ES6 modules)
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -81,25 +148,51 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 app.use(express.static(path.join(__dirname, './public')));
 
 app.use(express.json());
-// To handling the cookies
+// To handle cookies
 app.use(cookieParser());
-
-let users_count = [
-    {
-        roomID: "gh",
-        user: 2
-    },
-];
 
 // Listen for Socket.IO connections
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
+    const ip = socket.handshake.address;
+    console.log("User's IP:", ip);
+
+    // Check if the user is banned
+    if (banned_users.has(ip)) {
+        const banExpiration = banned_users.get(ip);
+        if (Date.now() < banExpiration) {
+            socket.emit('banned', { message: "You are temporarily banned from the chat." });
+            socket.disconnect(true);
+            return;
+        } else {
+            banned_users.delete(ip);
+        }
+    }
 
     // Store the room the user joins
     let currentRoom = null;
 
     // Handle joining a room
     socket.on('joinRoom', (roomName) => {
+
+        // Check ban status again when joining a room
+        if (banned_users.has(ip)) {
+            const banExpiration = banned_users.get(ip);
+            if (Date.now() < banExpiration) {
+                socket.emit('banned', { message: "You are temporarily banned from the chat." });
+                socket.disconnect(true);
+                return;
+            } else {
+                banned_users.delete(ip);
+            }
+        }
+
+        // Check if the user is blocked
+        if (blocked_users.includes(socket.id)) {
+            socket.emit('message', { msg: `You are blocked and cannot join room: ${roomName}.` });
+            socket.disconnect(); // Disconnect blocked user immediately
+            return;
+        }
 
         // Check if the room is deleted
         let roomDeleted = deleted_rooms.find((room) => room === roomName);
@@ -108,8 +201,7 @@ io.on('connection', (socket) => {
             // Notify the user
             socket.emit('message', { msg: `Room ${roomName} has been closed, you have been disconnected.` });
             return;
-        }
-        else{
+        } else {
             // Check if the room exists
             let roomExists = users_count.find((room) => room.roomID === roomName);
 
@@ -117,12 +209,16 @@ io.on('connection', (socket) => {
                 // Create a new room if it doesn't exist
                 roomExists = {
                     roomID: roomName,
-                    user: 0
+                    user: 0,
+                    users: [],
                 };
                 users_count.push(roomExists);
             }
 
             roomExists.user++;
+            //Add user details in the users_count array
+            roomExists.users.push({ userId: socket.id, ip: ip });
+
             currentRoom = roomName; // Store the room for later use
             socket.join(roomName); // Join the specified room
             console.log(`${socket.id} joined room: ${roomName}`);
@@ -147,7 +243,7 @@ io.on('connection', (socket) => {
         io.to(room).emit('message', { msg: message, socketId: socket.id });
 
         // Push the data in data
-        data.push({ room: room, message: message, socketId: socket.id })
+        data.push({ room: room, message: message, socketId: socket.id });
     });
 
     // Handle disconnection
@@ -161,7 +257,6 @@ io.on('connection', (socket) => {
 
                 io.to(currentRoom).emit('message', { msg: `${socket.id} has left the room`, socketId: socket.id });
 
-
                 // Emit the updated user count to the room
                 io.to(currentRoom).emit('newUserconnect', { user: room.user });
             }
@@ -169,14 +264,7 @@ io.on('connection', (socket) => {
     });
 });
 
-// print the user count
-app.get('/users', (req, res) => {
-    res.json(users_count);
-});
-
-
 // Start the server
 httpServer.listen(3000, '0.0.0.0', () => {
     console.log('Server listening on port 3000');
 });
-

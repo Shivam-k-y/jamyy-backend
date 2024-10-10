@@ -1,12 +1,13 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import ChatRoom from './components/ChatRoom';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "./components/ui/card"
-import { Input } from "./components/ui/input"
-import { Button } from "./components/ui/button"
-import { Label } from "./components/ui/label"
-import { Alert, AlertDescription, AlertTitle } from "./components/ui/alert"
-import { UserIcon, Users } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription } from "@/components/ui/alert-dialog"
+import { UserIcon, Users, AlertTriangle } from "lucide-react"
 
 const Socket = io(import.meta.env.VITE_API_URL);
 
@@ -16,6 +17,9 @@ function App() {
   const [userCount, setUserCount] = useState(0);
   const [welcomeMessage, setWelcomeMessage] = useState('');
   const [roomInput, setRoomInput] = useState('');
+  const [isBanned, setIsBanned] = useState(false);
+  const [banMessage, setBanMessage] = useState('');
+  const [showBanAlert, setShowBanAlert] = useState(false);
 
   useEffect(() => {
     Socket.on('newUserconnect', ({ message, user }) => {
@@ -29,8 +33,17 @@ function App() {
       }
     });
 
+    Socket.on('banned', ({ message }) => {
+      setIsBanned(true);
+      setBanMessage(message);
+      setShowRoomForm(true);
+      setCurrentRoom('');
+      setShowBanAlert(true);
+    });
+
     return () => {
       Socket.off('newUserconnect');
+      Socket.off('banned');
     };
   }, []);
 
@@ -39,6 +52,8 @@ function App() {
       Socket.emit('joinRoom', roomInput.trim());
       setCurrentRoom(roomInput.trim());
       setShowRoomForm(false);
+      setIsBanned(false);
+      setBanMessage('');
     } else {
       alert('Invalid Room Name');
       setRoomInput('');
@@ -49,7 +64,7 @@ function App() {
     <div className="min-h-screen bg-transparent flex items-center justify-center p-4">
       <Card className="w-full max-w-7xl bg-white bg-opacity-10 backdrop-blur-lg shadow-lg border border-white border-opacity-20">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">Annonymous Chat of IIITK</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">Anonymous Chat of IIITK</CardTitle>
           <CardDescription className="text-center">Connect and chat in real-time</CardDescription>
         </CardHeader>
         <CardContent>
@@ -93,9 +108,41 @@ function App() {
           )}
         </CardContent>
         <CardFooter className="text-center text-sm text-gray-500">
-          &copy; 2024 Annonymous Chat-IIITK. All rights reserved.
+          &copy; 2024 Anonymous Chat-IIITK. All rights reserved.
         </CardFooter>
       </Card>
+
+      <AlertDialog open={showBanAlert} onOpenChange={setShowBanAlert}>
+        <AlertDialogContent className="bg-red-500 text-white animate-zoom-expand">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-2xl font-bold flex items-center">
+              <AlertTriangle className="mr-2" /> You've been banned
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-white text-lg">
+              {banMessage}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <style jsx global>{`
+        @keyframes zoomExpand {
+          0% {
+            transform: scale(0.5);
+            opacity: 0;
+          }
+          70% {
+            transform: scale(1.1);
+          }
+          100% {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+        .animate-zoom-expand {
+          animation: zoomExpand 0.5s ease-out forwards;
+        }
+      `}</style>
     </div>
   );
 }
