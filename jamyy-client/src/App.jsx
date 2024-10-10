@@ -46,8 +46,8 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      <Card className="w-full max-w-7xl">
+    <div className="min-h-screen bg-transparent flex items-center justify-center p-4">
+      <Card className="w-full max-w-7xl bg-transparent">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">Annonymous Chat of IIITK</CardTitle>
           <CardDescription className="text-center">Connect and chat in real-time</CardDescription>
