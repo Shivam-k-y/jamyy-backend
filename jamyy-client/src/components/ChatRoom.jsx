@@ -17,20 +17,52 @@ function ChatRoom({ Socket, currentRoom }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (inputMessage.length >= 100) {
+      alert('Message is too long. Please keep it under 100 characters.');
+      setInputMessage('');
+      return;
+    }
     if (inputMessage) {
       Socket.emit('message', { room: currentRoom, message: inputMessage });
       setInputMessage('');
     }
   };
+  const handleKeyDown = (e) => {
+    if ((e.ctrlKey && e.key === 'c') || (e.ctrlKey && e.key === 'v')) {
+      e.preventDefault();
+    }
+  };
+
+  const handleInputChange = (e) => {
+    if (e.key === '*' || e.key === '.' || e.key === '\\') {
+      e.preventDefault();  // Prevent the key from being typed
+    }
+  };
+  useEffect(() => {
+    const inputElement = document.getElementById('input');
+    if (inputElement) {
+      inputElement.addEventListener('keypress', handleInputChange);
+    }
+
+    return () => {
+      if (inputElement) {
+        inputElement.removeEventListener('keypress', handleInputChange);
+      }
+    };
+  }, []);
+  
 
   return (
     <div className="chat-room">
       <MessageList messages={messages} currentUserId={Socket.id} />
       <form id="form" onSubmit={handleSubmit}>
         <input
+         
           id="input"
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
+          onKeyClick={handleInputChange}
+          onKeyDown={handleKeyDown}
           autoComplete="off"
           placeholder="Chat"
         />
