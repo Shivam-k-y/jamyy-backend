@@ -87,24 +87,24 @@ function ChatRoom({ Socket, currentRoom }) {
       <CardContent className="p-0 bg-transparent">
         <ScrollArea className="h-[300px] w-full bg-transparent" ref={scrollAreaRef}>
           <div className="p-4">
-          {messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`flex mb-4 ${msg.socketId === Socket.id ? 'justify-end' : 'justify-start'}`}
-            >
-              <div className={`flex items-start ${msg.socketId === Socket.id ? 'flex-row-reverse' : 'flex-row'}`}>
-                <Avatar className="w-8 h-8">
-                  <AvatarFallback>{msg.socketId.slice(0, 2).toUpperCase()}</AvatarFallback>
-                </Avatar>
-                <div className={`mx-2 max-w-md ${msg.socketId === Socket.id ? 'text-right' : 'text-left'}`}>
-                  <p className="text-xs text-muted-foreground mb-1">ID: {msg.socketId.slice(0, 6)}</p>
-                  <div className={`max-w-56 sm:max-w-sm md:max-w-md rounded-lg p-3 inline-block break-words ${msg.socketId === Socket.id ? 'bg-primary text-primary-foreground' : 'bg-secondary'}`}>
-                    {msg.msg}
+            {messages.map((msg, index) => (
+              <div
+                key={index}
+                className={`flex mb-4 ${msg.socketId === Socket.id ? 'justify-end' : 'justify-start'}`}
+              >
+                <div className={`flex items-start ${msg.socketId === Socket.id ? 'flex-row-reverse' : 'flex-row'}`}>
+                  <Avatar className="w-8 h-8">
+                    <AvatarFallback>{msg.socketId.slice(0, 2).toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                  <div className={`mx-2 max-w-md ${msg.socketId === Socket.id ? 'text-right' : 'text-left'}`}>
+                    <p className="text-xs text-muted-foreground mb-1">ID: {msg.socketId.slice(0, 6)}</p>
+                    <div className={`max-w-56 sm:max-w-sm md:max-w-md rounded-lg p-3 inline-block break-words ${msg.socketId === Socket.id ? 'bg-primary text-primary-foreground' : 'bg-secondary'}`}>
+                      {msg.msg}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
             <div ref={messagesEndRef} />
           </div>
         </ScrollArea>
