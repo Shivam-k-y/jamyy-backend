@@ -256,6 +256,8 @@ io.on('connection', (socket) => {
 
     socket.on('message', ({ room, message }) => {
         io.to(room).emit('message', { msg: message, socketId: socket.id });
+        data[room] = data[room] || [];
+        data[room].push({ message, socketId: socket.id });
     });
 
     socket.on('disconnect', () => {
