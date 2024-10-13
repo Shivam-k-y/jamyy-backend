@@ -15,7 +15,7 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
-        origin: ['http://localhost:5173', 'https://jamyy-client.onrender.com'],
+        origin: ['http://localhost:5173', 'http://localhost:5174', 'https://jamyy-client.onrender.com'],
         credentials: true,
     }
 });
@@ -26,12 +26,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 const corsOptions = {
-    origin: ['http://localhost:5173', 'https://jamyy-client.onrender.com'],
+    origin: ['http://localhost:5173', 'http://localhost:5174', 'https://jamyy-client.onrender.com'],
     credentials: true, 
 };
 app.use(cors(corsOptions));
 
-let data = [];
+let data = {};
 let deleted_rooms = [];
 let blocked_users = [];
 let banned_users = new Map(); // Store banned users with ban expiration time
@@ -101,7 +101,14 @@ app.get('/users', (req, res) => {
 
 // Get all stored messages
 app.get('/data', (req, res) => {
-    res.json(data);
+    try{
+        // send data to the client
+        res.json(data);
+    }
+    catch(error){
+        console.error('Error in get data route:', error);
+        res.status(500).json({ message: "Internal server error" });
+    }
 });
 
 // Delete a room and kick out all users
@@ -237,6 +244,7 @@ io.on('connection', (socket) => {
                     user: 0,
                     users: [],
                 };
+                data[roomName] = [];
                 users_count.push(roomExists);
             }
 
@@ -255,9 +263,13 @@ io.on('connection', (socket) => {
     });
 
     socket.on('message', ({ room, message }) => {
-        io.to(room).emit('message', { msg: message, socketId: socket.id });
-        data[room] = data[room] || [];
-        data[room].push({ message, socketId: socket.id });
+        try {
+            console.log(`Message received in room: ${room}, from socket: ${socket.id}, message: ${message}`);
+            data[room].push({ message, socketId: socket.id });
+            io.to(room).emit('message', { msg: message, socketId: socket.id });
+        } catch (error) {
+            console.error('Error storing message:', error);
+        }
     });
 
     socket.on('disconnect', () => {
