@@ -27,7 +27,7 @@ app.use(cookieParser());
 
 const corsOptions = {
     origin: ['http://localhost:5173', 'https://jamyy-client.onrender.com'],
-    credentials: true, 
+    credentials: true,
 };
 app.use(cors(corsOptions));
 
@@ -82,8 +82,8 @@ app.get('/generate-token', (req, res) => {
     if (!req.cookies.token) {
         const userId = Math.random().toString(36).slice(2, 11);
         const token = generateToken(userId);
-        res.cookie('token', token, { 
-            httpOnly: true, 
+        res.cookie('token', token, {
+            httpOnly: true,
             maxAge: 24 * 60 * 60 * 1000,
             secure: process.env.NODE_ENV === 'production', // Send the cookie only over HTTPS when in production
             sameSite: 'None', // Required for cross-origin requests
