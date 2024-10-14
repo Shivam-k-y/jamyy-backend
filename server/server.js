@@ -42,7 +42,7 @@ let user_id;
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
     user_id = socket.id;
-    console.log("User ID:", user_id);
+    console.log("User ID:", user_id)
     // Store the room the user joins
     let currentRoom = null;
 
