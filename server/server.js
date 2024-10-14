@@ -17,9 +17,7 @@ const io = new Server(httpServer, {
     }
 });
 
-app.get('/generate-token', (req, res) => {
-    const token = generate_token(user_id, res);
-    });
+
 
 
 // Set __dirname to the current directory since we are using ESM (ES6 modules)
@@ -38,11 +36,13 @@ let users_count = [
         user: 2
     },
 ];
+let user_id;
 
 // Listen for Socket.IO connections
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
-
+    user_id = socket.id;
+    console.log("User ID:", user_id);
     // Store the room the user joins
     let currentRoom = null;
 
@@ -103,10 +103,30 @@ io.on('connection', (socket) => {
     });
 });
 
+app.get('/', (req, res) => {
+
+    const user_id = req.query.user_id || req.body.user_id || "default";
+    const token = generate_token(user_id);
+    console.log(token);
+    
+    res.cookie('token', token,
+        "message", "Cookie created successfully", 
+        { httpOnly: true, 
+        secure: true, 
+        sameSite: 'none', 
+        maxAge: 3600000 });
+    
+    
+        // res.json({token});
+    });
+
+   
+
 // print the user count
 app.get('/users', (req, res) => {
     res.json(users_count);
 });
+
 
 
 // Start the server
