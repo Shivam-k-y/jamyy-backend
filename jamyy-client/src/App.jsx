@@ -68,7 +68,7 @@ function App() {
   }, []);
 
   const handleJoinRoom = () => {
-    if (roomInput.trim() === 'adavya' && Socket) {
+    if (roomInput.trim() === import.meta.env.VITE_ROOM_NAME && Socket) {
       Socket.emit('joinRoom', roomInput.trim());
       setCurrentRoom(roomInput.trim());
       setShowRoomForm(false);
