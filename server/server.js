@@ -8,6 +8,7 @@ import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import { v4 as uuidv4 } from 'uuid';
 
 dotenv.config();
 
@@ -262,15 +263,24 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('message', ({ room, message }) => {
+    socket.on('message', ({ room, message, replyTo }) => {
         try {
-            console.log(`Message received in room: ${room}, from socket: ${socket.id}, message: ${message}`);
-            data[room].push({ message, socketId: socket.id });
-            io.to(room).emit('message', { msg: message, socketId: socket.id });
+            console.log(`Message received in room: ${room}, from socket: ${socket.id}, message: ${message}, replyTo: ${replyTo}`);
+    
+            // Store the message with replyTo information
+            const newMessage = { id: uuidv4(),  msg: message, socketId: socket.id, replyTo: replyTo || null }; // Include replyTo if provided
+            if (!data[room]) {
+                data[room] = []; // Initialize room if it doesn't exist
+            }
+            data[room].push(newMessage);
+    
+            // Emit the message to all clients in the room, including replyTo information
+            io.to(room).emit('message', newMessage);
         } catch (error) {
             console.error('Error storing message:', error);
         }
     });
+    
 
     socket.on('disconnect', () => {
         console.log('User disconnected:', socket.id);
