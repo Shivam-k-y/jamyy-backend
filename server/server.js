@@ -8,6 +8,7 @@ import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import { v4 as uuidv4 } from 'uuid';
 
 dotenv.config();
 
@@ -27,7 +28,7 @@ app.use(cookieParser());
 
 const corsOptions = {
     origin: ['http://localhost:5173', 'http://localhost:5174', 'https://jamyy-client.onrender.com'],
-    credentials: true, 
+    credentials: true,
 };
 app.use(cors(corsOptions));
 
@@ -82,8 +83,8 @@ app.get('/generate-token', (req, res) => {
     if (!req.cookies.token) {
         const userId = Math.random().toString(36).slice(2, 11);
         const token = generateToken(userId);
-        res.cookie('token', token, { 
-            httpOnly: true, 
+        res.cookie('token', token, {
+            httpOnly: true,
             maxAge: 24 * 60 * 60 * 1000,
             secure: process.env.NODE_ENV === 'production', // Send the cookie only over HTTPS when in production
             sameSite: 'None', // Required for cross-origin requests
@@ -101,11 +102,11 @@ app.get('/users', (req, res) => {
 
 // Get all stored messages
 app.get('/data', (req, res) => {
-    try{
+    try {
         // send data to the client
         res.json(data);
     }
-    catch(error){
+    catch (error) {
         console.error('Error in get data route:', error);
         res.status(500).json({ message: "Internal server error" });
     }
@@ -262,15 +263,24 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('message', ({ room, message }) => {
+    socket.on('message', ({ room, message, replyTo }) => {
         try {
-            console.log(`Message received in room: ${room}, from socket: ${socket.id}, message: ${message}`);
-            data[room].push({ message, socketId: socket.id });
-            io.to(room).emit('message', { msg: message, socketId: socket.id });
+            console.log(`Message received in room: ${room}, from socket: ${socket.id}, message: ${message}, replyTo: ${replyTo}`);
+    
+            // Store the message with replyTo information
+            const newMessage = { id: uuidv4(),  msg: message, socketId: socket.id, replyTo: replyTo || null }; // Include replyTo if provided
+            if (!data[room]) {
+                data[room] = []; // Initialize room if it doesn't exist
+            }
+            data[room].push(newMessage);
+    
+            // Emit the message to all clients in the room, including replyTo information
+            io.to(room).emit('message', newMessage);
         } catch (error) {
             console.error('Error storing message:', error);
         }
     });
+    
 
     socket.on('disconnect', () => {
         console.log('User disconnected:', socket.id);
