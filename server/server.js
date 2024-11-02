@@ -101,11 +101,11 @@ app.get('/users', (req, res) => {
 
 // Get all stored messages
 app.get('/data', (req, res) => {
-    try{
+    try {
         // send data to the client
         res.json(data);
     }
-    catch(error){
+    catch (error) {
         console.error('Error in get data route:', error);
         res.status(500).json({ message: "Internal server error" });
     }

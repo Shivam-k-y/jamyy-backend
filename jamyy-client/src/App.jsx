@@ -83,9 +83,9 @@ function App() {
   return (
     <div className="min-h-screen bg-transparent flex items-center justify-center p-4">
       <Card className="w-full max-w-7xl bg-white bg-opacity-10 backdrop-blur-lg shadow-lg border border-white border-opacity-20">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">Anonymous Chat of IIITK</CardTitle>
-          <CardDescription className="text-center">Connect and chat in real-time</CardDescription>
+        <CardHeader >
+          <CardTitle className="text-sm font-bold text-center">Anonymous Chat of IIITK</CardTitle>
+          <CardDescription className=" text-sm  text-center ">Connect and chat in real-time</CardDescription>
         </CardHeader>
         <CardContent>
           {showRoomForm ? (
@@ -111,7 +111,7 @@ function App() {
             </div>
           ) : (
             <>
-              <Alert className="mb-4">
+              <Alert className="pd-4">
                 <UserIcon className="h-4 w-4" />
                 <AlertTitle>Welcome!</AlertTitle>
                 <AlertDescription>{welcomeMessage}</AlertDescription>
