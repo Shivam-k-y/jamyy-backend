@@ -27,7 +27,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 const corsOptions = {
-    origin: ['http://localhost:5173', 'http://localhost:5174', 'https://jamyy-client.onrender.com'],
+    origin: ['http://localhost:5173', 'http://localhost:5174', 'https://jamyy-client.onrender.com', 'https://spyboysg.com', 'https://www.spyboysg.com'],
     credentials: true,
 };
 app.use(cors(corsOptions));
