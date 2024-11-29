@@ -17,7 +17,7 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
-        origin: ['http://localhost:5173', 'http://localhost:5174', 'https://jamyy-client.onrender.com', 'http://172.16.196.79:5173'],
+        origin: ['http://localhost:5173', 'http://localhost:5174', 'https://jamyy-client.onrender.com', 'https://spyboysg.com', 'https://www.spyboysg.com'],
         credentials: true,
     }
 });
@@ -28,7 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 const corsOptions = {
-    origin: ['http://localhost:5173', 'http://localhost:5174', 'https://jamyy-client.onrender.com', 'http://172.16.196.79:5173'],
+    origin: ['http://localhost:5173', 'http://localhost:5174', 'https://jamyy-client.onrender.com', 'https://spyboysg.com', 'https://www.spyboysg.com'],
     credentials: true,
 };
 app.use(cors(corsOptions));
