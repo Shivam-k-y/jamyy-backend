@@ -9,6 +9,7 @@ import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { v4 as uuidv4 } from 'uuid';
+import e from 'express';
 
 dotenv.config();
 
@@ -16,7 +17,7 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
-        origin: ['http://localhost:5173', 'http://localhost:5174', 'https://jamyy-client.onrender.com'],
+        origin: ['http://localhost:5173', 'http://localhost:5174', 'https://jamyy-client.onrender.com', 'http://172.16.196.79:5173'],
         credentials: true,
     }
 });
@@ -27,7 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 const corsOptions = {
-    origin: ['http://localhost:5173', 'http://localhost:5174', 'https://jamyy-client.onrender.com'],
+    origin: ['http://localhost:5173', 'http://localhost:5174', 'https://jamyy-client.onrender.com', 'http://172.16.196.79:5173'],
     credentials: true,
 };
 app.use(cors(corsOptions));
@@ -91,9 +92,33 @@ app.get('/generate-token', (req, res) => {
         });
         res.json({ message: "Token generated and set in cookie", token });
     } else {
-        res.json({ message: "Token already exists" });
+        // vrify the token
+        const decoded = verifyToken(req.cookies.token);
+        if (!decoded) {
+            // if token is invalid or expired, send 403 status and unset the cookie
+            res.status(403).json({ message: "Invalid or expired token" });
+            res.clearCookie('token');
+        }
+        else {
+            res.json({ message: "Token already exists" });
+        }
     }
 });
+
+// Endpoint to verufy JWT token
+app.get('/verify-token', (req, res) => {
+    const token = req.cookies.token;
+    if (!token) {
+        return res.status(403).json({ message: "Unauthorized access - token required" });
+    }
+
+    const decoded = verifyToken(token);
+    if (!decoded) {
+        return res.status(403).json({ message: "Invalid or expired token" });
+    }
+
+    res.json({ message: "Token verified", decoded });
+})
 
 // Get users count
 app.get('/users', (req, res) => {
@@ -190,6 +215,14 @@ app.post('/ban-user', (req, res) => {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 app.use(express.static(path.join(__dirname, './public')));
 
+// Ensure users cannot see or tamper with cookies by securing them
+app.use((req, res, next) => {
+    if (!req.cookies.token) {
+        return res.status(403).json({ message: "Unauthorized access - token required" });
+    }
+    next();
+});
+
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
 
@@ -224,6 +257,20 @@ io.on('connection', (socket) => {
                 banned_users.delete(token);
             }
         }
+        // else if (!token) {
+        //     const userId = Math.random().toString(36).slice(2, 11);
+        //     const newToken = generateToken(userId);
+        //     socket.handshake.headers.cookie = `token=${newToken}`;
+        //     socket.disconnect();
+        //     return;
+        // }
+        // // if token is not provided, generate a new token and assign it to the user and disconnect the user
+        // else if (!token) {
+        //     const userId = Math.random().toString(36).slice(2, 11);
+        //     const newToken = generateToken(userId);
+        //     socket.handshake.headers.cookie = `token=${newToken}`;
+        //     socket.disconnect();
+        // }
 
         if (blocked_users.includes(socket.id)) {
             socket.emit('message', { msg: `You are blocked and cannot join room: ${roomName}.` });
@@ -249,17 +296,26 @@ io.on('connection', (socket) => {
                 users_count.push(roomExists);
             }
 
-            roomExists.user++;
-            roomExists.users.push({ userId: socket.id, token: token });
+            // check if user already exists in the room find by token
+            const userExists = roomExists.users.find(user => user.token === token);
+            if (userExists) {
+                socket.emit('message', { msg: `${socket.id} You are already in room: ${roomName}.`, socketId: socket.id });
+                socket.disconnect();
+                return;
+            }else{
+                roomExists.user++;
+                roomExists.users.push({ userId: socket.id, token: token });
 
-            currentRoom = roomName;
-            socket.join(roomName);
-            console.log(`${socket.id} joined room: ${roomName}`);
+                currentRoom = roomName;
+                socket.join(roomName);
+                console.log(`${socket.id} joined room: ${roomName}`);
 
-            socket.emit('message', { msg: `Welcome to room: ${roomName}`, socketId: socket.id });
-            socket.to(roomName).emit('message', { msg: `${socket.id} has joined the room`, socketId: socket.id });
-            socket.emit('newUserconnect', { message: 'Hi! Welcome To Anonymous Chat Room', user: roomExists.user });
-            io.to(roomName).emit('newUserconnect', { user: roomExists.user });
+                socket.emit('message', { msg: `Welcome to room: ${roomName}`, socketId: socket.id });
+                socket.to(roomName).emit('message', { msg: `${socket.id} has joined the room`, socketId: socket.id });
+                socket.emit('newUserconnect', { message: 'Hi! Welcome To Anonymous Chat Room', user: roomExists.user });
+                io.to(roomName).emit('newUserconnect', { user: roomExists.user });
+            }
+
         }
     });
 

@@ -27,7 +27,6 @@ function App() {
       try {
         // Fetch token from the server or cookies
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/generate-token`, { withCredentials: true });
-        const token = response.data.token;
 
         // Establish the socket connection with the token in the handshake auth
         const newSocket = io(import.meta.env.VITE_API_URL, {
