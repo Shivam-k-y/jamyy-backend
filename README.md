@@ -7,7 +7,7 @@ Jamyy is a service that allows users to create private listening rooms using the
 - **Create Listening Rooms**: Users can create private listening rooms and share room codes with friends.
 - **Synchronized Playback**: Music playback is synced across all participants' devices, following the host’s player controls (play, pause, skip, seek).
 - **Music Queue Management**: Hosts can manage the music queue and grant participants permission to add/remove songs from the queue.
-- **Access Control**: Hosts control which participants can access the music player and queue.
+- **Access Control for user**: Hosts control which participants can access the music player and queue.
 - **In-Room Chat**: Participants can chat with each other while listening to music, enhancing the social experience.
 
 ## How It Works
