@@ -115,7 +115,7 @@ function App() {
                 <AlertTitle>Welcome!</AlertTitle>
                 <AlertDescription>{welcomeMessage}</AlertDescription>
               </Alert>
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center space-x-2">
                   <Users className="h-5 w-5 text-blue-500" />
                   <span className="font-medium">Current Users: {userCount}</span>
